@@ -70,7 +70,7 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <BrowserRouter>
+    <BrowserRouter basename="/adhd-daily-planner">
       <Routes>
         <Route
           path="/focus"

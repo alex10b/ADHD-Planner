@@ -8,3 +8,13 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>
 );
+
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/adhd-daily-planner/sw.js')
+      .catch((error) => {
+        console.error('Service worker registration failed:', error);
+      });
+  });
+}
