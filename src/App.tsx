@@ -70,7 +70,7 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <BrowserRouter basename="/adhd-daily-planner">
+    <BrowserRouter basename={(import.meta.env.BASE_URL || '/').replace(/\/$/, '')}>
       <Routes>
         <Route
           path="/focus"
