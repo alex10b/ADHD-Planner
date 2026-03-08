@@ -1,6 +1,7 @@
 const GOALS_KEY = 'adhd-planner-goals';
 const STATS_KEY = 'adhd-planner-stats';
 const THEME_KEY = 'adhd-planner-theme';
+const SETTINGS_KEY = 'adhd-planner-settings';
 
 export function saveToStorage<T>(key: string, data: T): void {
   try {
@@ -24,4 +25,5 @@ export const storageKeys = {
   goals: GOALS_KEY,
   stats: STATS_KEY,
   theme: THEME_KEY,
+  settings: SETTINGS_KEY,
 } as const;

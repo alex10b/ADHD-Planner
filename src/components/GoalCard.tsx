@@ -118,6 +118,12 @@ export function GoalCard({ goal }: GoalCardProps) {
         </AnimatePresence>
       </ul>
 
+      {totalTasks > 0 && completedTasks === totalTasks && (
+        <p className="mt-3 text-sm font-medium text-[var(--success)]">
+          ✓ Goal complete — nice work!
+        </p>
+      )}
+
       {canAdd && (
         <div className="mt-3">
           {!showAddTask ? (

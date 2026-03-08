@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTimerStore } from '../store/timerStore.js';
 import { useGoalsStore } from '../store/goalsStore.js';
+import { useSettingsStore } from '../store/settingsStore.js';
 import { FocusTimer } from '../components/FocusTimer.jsx';
 import { useFocusTimer } from '../hooks/useFocusTimer.js';
 import { getTodayKey } from '../utils/dateUtils.js';
+import { playFocusCompleteSound } from '../utils/sound.js';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function FocusMode() {
@@ -26,15 +28,21 @@ export function FocusMode() {
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [justFinished, setJustFinished] = useState(false);
+  const soundPlayed = useRef(false);
+  const soundOnFocusComplete = useSettingsStore((s) => s.soundOnFocusComplete);
 
   useEffect(() => {
     if (remainingSeconds === 0 && isRunning === false && (focusGoalId || focusTaskId)) {
       setJustFinished(true);
       setShowSuccess(true);
+      if (soundOnFocusComplete && !soundPlayed.current) {
+        soundPlayed.current = true;
+        playFocusCompleteSound();
+      }
       const t = setTimeout(() => setShowSuccess(false), 3000);
       return () => clearTimeout(t);
     }
-  }, [remainingSeconds, isRunning, focusGoalId, focusTaskId]);
+  }, [remainingSeconds, isRunning, focusGoalId, focusTaskId, soundOnFocusComplete]);
 
   const handleCompleteTask = () => {
     if (focusGoalId && focusTaskId) {

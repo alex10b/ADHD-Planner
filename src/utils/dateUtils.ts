@@ -31,3 +31,15 @@ export function formatDisplayDate(dateKey: string): string {
 export function isToday(dateKey: string): boolean {
   return dateKey === getTodayKey();
 }
+
+/** Previous day's key (YYYY-MM-DD) */
+export function getPreviousDayKey(dateKey: string): string {
+  const d = parseDateKey(dateKey);
+  d.setDate(d.getDate() - 1);
+  return formatDateKey(d);
+}
+
+/** Hour 0–23 for greeting */
+export function getCurrentHour(): number {
+  return new Date().getHours();
+}

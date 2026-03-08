@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { MotionConfig } from 'framer-motion';
 import { useGoalsStore } from './store/goalsStore.js';
 import { useThemeStore } from './store/themeStore.js';
+import { useSettingsStore } from './store/settingsStore.js';
+import { useMorningNotification } from './hooks/useMorningNotification.js';
 import { Dashboard } from './pages/Dashboard.jsx';
 import { FocusMode } from './pages/FocusMode.jsx';
 import { History } from './pages/History.jsx';
@@ -55,13 +58,18 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 export default function App() {
   const hydrateGoals = useGoalsStore((s) => s.hydrate);
   const hydrateTheme = useThemeStore((s) => s.hydrate);
+  const hydrateSettings = useSettingsStore((s) => s.hydrate);
 
   useEffect(() => {
     hydrateTheme();
     hydrateGoals();
-  }, [hydrateTheme, hydrateGoals]);
+    hydrateSettings();
+  }, [hydrateTheme, hydrateGoals, hydrateSettings]);
+
+  useMorningNotification();
 
   return (
+    <MotionConfig reducedMotion="user">
     <BrowserRouter>
       <Routes>
         <Route
@@ -90,5 +98,6 @@ export default function App() {
         />
       </Routes>
     </BrowserRouter>
+    </MotionConfig>
   );
 }

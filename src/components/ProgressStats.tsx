@@ -1,7 +1,15 @@
 import { useStatsStore } from '../store/statsStore.js';
+import { getTodayKey } from '../utils/dateUtils.js';
 
 export function ProgressStats() {
-  const stats = useStatsStore((s) => s.getTodayStats)();
+  const today = getTodayKey();
+  const stats = useStatsStore((s) => s.statsByDate[today] ?? {
+    date: today,
+    focusMinutes: 0,
+    distractionMinutes: 0,
+    completedGoals: 0,
+    completedTasks: 0,
+  });
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">

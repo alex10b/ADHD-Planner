@@ -6,11 +6,14 @@ import { useTimerStore } from '../store/timerStore.js';
 import { GoalCard } from '../components/GoalCard.jsx';
 import { GoalInput } from '../components/GoalInput.jsx';
 import { ProgressStats } from '../components/ProgressStats.jsx';
+import { ProgressRing } from '../components/ProgressRing.jsx';
+import { StreakBadge } from '../components/StreakBadge.jsx';
+import { EmptyState } from '../components/EmptyState.jsx';
 import { DailyReview } from '../components/DailyReview.jsx';
+import { Settings } from '../components/Settings.jsx';
 import { getTodayKey } from '../utils/dateUtils.js';
+import { getTimeBasedGreeting, getEncouragement } from '../utils/copy.js';
 import { AnimatePresence } from 'framer-motion';
-
-const MAX_GOALS = 5;
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -42,6 +45,12 @@ export function Dashboard() {
     g.tasks.some((t) => !t.completed)
   );
 
+  const totalTasks = goals.reduce((acc, g) => acc + g.tasks.length, 0);
+  const completedTasks = goals.reduce(
+    (acc, g) => acc + g.tasks.filter((t) => t.completed).length,
+    0
+  );
+
   const handleStartFocus = () => {
     for (const goal of goals) {
       const task = goal.tasks.find((t) => !t.completed);
@@ -55,16 +64,28 @@ export function Dashboard() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-10 px-4 py-8">
-      <header>
-        <h1 className="text-2xl font-semibold text-[var(--text)]">
-          Today&apos;s goals
-        </h1>
-        <p className="mt-1 text-[var(--muted)]">
-          Up to {MAX_GOALS} goals. Keep it simple.
+      <header className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm text-[var(--muted)]">{getTimeBasedGreeting()}</p>
+            <h1 className="text-2xl font-semibold text-[var(--text)]">
+              Today&apos;s goals
+            </h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <StreakBadge />
+            {totalTasks > 0 && (
+              <ProgressRing completed={completedTasks} total={totalTasks} />
+            )}
+          </div>
+        </div>
+        <p className="text-sm text-[var(--muted)] italic">
+          {getEncouragement()}
         </p>
       </header>
 
       <div className="space-y-4">
+        <EmptyState />
         <AnimatePresence mode="popLayout">
           {goals.map((goal) => (
             <GoalCard key={goal.id} goal={goal} />
@@ -76,6 +97,8 @@ export function Dashboard() {
       <ProgressStats />
 
       <DailyReview />
+
+      <Settings />
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <button
