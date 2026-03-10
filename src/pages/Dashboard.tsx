@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useGoalsStore } from '../store/goalsStore.js';
 import { useStatsStore } from '../store/statsStore.js';
 import { useTimerStore } from '../store/timerStore.js';
+import type { Goal } from '../types/goal.js';
 import { GoalCard } from '../components/GoalCard.jsx';
 import { GoalInput } from '../components/GoalInput.jsx';
 import { ProgressStats } from '../components/ProgressStats.jsx';
@@ -19,6 +20,8 @@ import { AnimatePresence } from 'framer-motion';
 
 type Tab = 'focus' | 'goals' | 'more';
 
+const EMPTY_GOALS: Goal[] = [];
+
 export function Dashboard() {
   const [tab, setTab] = useState<Tab>('goals');
   const navigate = useNavigate();
@@ -26,7 +29,8 @@ export function Dashboard() {
   const hydrateStats = useStatsStore((s) => s.hydrate);
   useGoalsStore((s) => s._version);
   const goalsByDate = useGoalsStore((s) => s.goalsByDate);
-  const goals = goalsByDate[getTodayKey()] ?? [];
+  const todayKey = getTodayKey();
+  const goals = goalsByDate[todayKey] ?? EMPTY_GOALS;
   const setCompletedGoals = useStatsStore((s) => s.setCompletedGoals);
   const setCompletedTasks = useStatsStore((s) => s.setCompletedTasks);
   const prepareSession = useTimerStore((s) => s.prepareSession);
@@ -73,7 +77,6 @@ export function Dashboard() {
     }
   };
 
-  const todayKey = getTodayKey();
   const yesterdayKey = getYesterdayKey();
   const yesterdayGoals = goalsByDate[yesterdayKey] ?? [];
   const todayStats = statsByDate[todayKey];

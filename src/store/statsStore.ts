@@ -87,6 +87,7 @@ export const useStatsStore = create<StatsState>((set, get) => ({
     const today = getTodayKey();
     const state = get();
     const current = state.statsByDate[today] ?? emptyStats(today);
+    if (current.completedGoals === count) return;
     set({
       statsByDate: {
         ...state.statsByDate,
@@ -100,6 +101,7 @@ export const useStatsStore = create<StatsState>((set, get) => ({
     const today = getTodayKey();
     const state = get();
     const current = state.statsByDate[today] ?? emptyStats(today);
+    if (current.completedTasks === count) return;
     set({
       statsByDate: {
         ...state.statsByDate,
