@@ -1,10 +1,22 @@
 import { useState } from 'react';
 import { useStatsStore } from '../store/statsStore.js';
+import { getTodayKey } from '../utils/dateUtils.js';
 
 export function DailyReview() {
   const [expanded, setExpanded] = useState(false);
-  const stats = useStatsStore((s) => s.getTodayStats)();
+  const today = getTodayKey();
+  const statsByDate = useStatsStore((s) => s.statsByDate);
   const setReflectionNote = useStatsStore((s) => s.setReflectionNote);
+
+  const stats =
+    statsByDate[today] ??
+    {
+      date: today,
+      focusMinutes: 0,
+      distractionMinutes: 0,
+      completedGoals: 0,
+      completedTasks: 0,
+    };
 
   const [note, setNote] = useState('');
 
