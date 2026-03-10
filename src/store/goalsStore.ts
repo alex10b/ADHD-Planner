@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import type { Goal, Priority } from '../types/goal.js';
 import type { Task } from '../types/task.js';
-import { getTodayKey } from '../utils/dateUtils.js';
+import { getTodayKey, getYesterdayKey } from '../utils/dateUtils.js';
 import {
   loadFromStorage,
   saveToStorage,
@@ -19,6 +19,8 @@ interface GoalsState {
   _hydrated: boolean;
   _version: number;
   getTodayGoals: () => Goal[];
+  getGoalsForDate: (dateKey: string) => Goal[];
+  getAllDatesWithGoals: () => string[];
   addGoal: (title: string, description?: string, priority?: Priority) => void;
   removeGoal: (goalId: string) => void;
   toggleGoal: (goalId: string) => void;
@@ -30,8 +32,13 @@ interface GoalsState {
   toggleTask: (goalId: string, taskId: string) => void;
   deleteTask: (goalId: string, taskId: string) => void;
   reorderTasks: (goalId: string, fromIndex: number, toIndex: number) => void;
+  addGoalReason: (goalId: string, reason: string) => void;
+  removeGoalReason: (goalId: string, index: number) => void;
+  addTaskReason: (goalId: string, taskId: string, reason: string) => void;
+  removeTaskReason: (goalId: string, taskId: string, index: number) => void;
   canAddGoal: () => boolean;
   canAddTask: (goalId: string) => boolean;
+  copyYesterdayGoals: () => void;
   hydrate: () => void;
   persist: () => void;
 }
@@ -45,6 +52,7 @@ function createEmptyGoal(overrides?: Partial<Goal>): Goal {
     tasks: [],
     completed: false,
     createdAt: new Date().toISOString(),
+    reasons: [],
     ...overrides,
   };
 }
@@ -54,6 +62,7 @@ function createEmptyTask(overrides?: Partial<Task>): Task {
     id: uuidv4(),
     title: '',
     completed: false,
+    reasons: [],
     ...overrides,
   };
 }
@@ -66,6 +75,14 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
   getTodayGoals() {
     const today = getTodayKey();
     return get().goalsByDate[today] ?? [];
+  },
+
+  getGoalsForDate(dateKey) {
+    return get().goalsByDate[dateKey] ?? [];
+  },
+
+  getAllDatesWithGoals() {
+    return Object.keys(get().goalsByDate).sort((a, b) => b.localeCompare(a));
   },
 
   addGoal(title, description, priority = 'medium') {
@@ -220,6 +237,89 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
     get().persist();
   },
 
+  addGoalReason(goalId, reason) {
+    const state = get();
+    const today = getTodayKey();
+    const list = state.goalsByDate[today] ?? [];
+    const updated = list.map((g) =>
+      g.id === goalId
+        ? { ...g, reasons: [...(g.reasons ?? []), reason.trim()].filter(Boolean) }
+        : g
+    );
+    set({
+      goalsByDate: { ...state.goalsByDate, [today]: updated },
+      _version: state._version + 1,
+    });
+    get().persist();
+  },
+
+  removeGoalReason(goalId, index) {
+    const state = get();
+    const today = getTodayKey();
+    const list = state.goalsByDate[today] ?? [];
+    const updated = list.map((g) => {
+      if (g.id !== goalId) return g;
+      const reasons = [...(g.reasons ?? [])];
+      reasons.splice(index, 1);
+      return { ...g, reasons };
+    });
+    set({
+      goalsByDate: { ...state.goalsByDate, [today]: updated },
+      _version: state._version + 1,
+    });
+    get().persist();
+  },
+
+  addTaskReason(goalId, taskId, reason) {
+    const state = get();
+    const today = getTodayKey();
+    const list = state.goalsByDate[today] ?? [];
+    const updated = list.map((g) =>
+      g.id === goalId
+        ? {
+            ...g,
+            tasks: g.tasks.map((t) =>
+              t.id === taskId
+                ? {
+                    ...t,
+                    reasons: [...(t.reasons ?? []), reason.trim()].filter(Boolean),
+                  }
+                : t
+            ),
+          }
+        : g
+    );
+    set({
+      goalsByDate: { ...state.goalsByDate, [today]: updated },
+      _version: state._version + 1,
+    });
+    get().persist();
+  },
+
+  removeTaskReason(goalId, taskId, index) {
+    const state = get();
+    const today = getTodayKey();
+    const list = state.goalsByDate[today] ?? [];
+    const updated = list.map((g) =>
+      g.id === goalId
+        ? {
+            ...g,
+            tasks: g.tasks.map((t) => {
+              if (t.id !== taskId) return t;
+              const reasons = [...(t.reasons ?? [])];
+              reasons.splice(index, 1);
+              return { ...t, reasons };
+            }),
+          }
+        : g
+    );
+    set({
+      goalsByDate: { ...state.goalsByDate, [today]: updated },
+      _version: state._version + 1,
+    });
+    get().persist();
+  },
+
   canAddGoal() {
     const today = getTodayKey();
     const list = get().goalsByDate[today] ?? [];
@@ -231,6 +331,33 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
     const list = get().goalsByDate[today] ?? [];
     const goal = list.find((g) => g.id === goalId);
     return goal ? goal.tasks.length < MAX_TASKS_PER_GOAL : false;
+  },
+
+  copyYesterdayGoals() {
+    const state = get();
+    const today = getTodayKey();
+    const yesterday = getYesterdayKey();
+    const existingToday = state.goalsByDate[today] ?? [];
+    const yesterdayGoals = state.goalsByDate[yesterday] ?? [];
+    const slotsLeft = MAX_GOALS_PER_DAY - existingToday.length;
+    if (slotsLeft <= 0 || yesterdayGoals.length === 0) return;
+    const toCopy = yesterdayGoals.slice(0, slotsLeft);
+    const newGoals = toCopy.map((g) =>
+      createEmptyGoal({
+        title: g.title,
+        description: g.description,
+        priority: g.priority,
+        reasons: g.reasons?.length ? [...g.reasons] : undefined,
+      })
+    );
+    set({
+      goalsByDate: {
+        ...state.goalsByDate,
+        [today]: [...existingToday, ...newGoals],
+      },
+      _version: state._version + 1,
+    });
+    get().persist();
   },
 
   hydrate() {

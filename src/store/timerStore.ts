@@ -13,6 +13,8 @@ interface TimerState {
   focusTaskId: string | null;
   setPreset: (preset: TimerPreset) => void;
   setCustomMinutes: (minutes: number) => void;
+  /** Set focus task without starting the timer (so user can pick duration first) */
+  prepareSession: (goalId: string, taskId: string) => void;
   startSession: (goalId: string, taskId: string) => void;
   tick: () => void;
   pause: () => void;
@@ -42,6 +44,15 @@ export const useTimerStore = create<TimerState>((set, get) => ({
 
   setCustomMinutes(minutes) {
     set({ customMinutes: Math.max(1, Math.min(120, minutes)) });
+  },
+
+  prepareSession(goalId, taskId) {
+    set({
+      focusGoalId: goalId,
+      focusTaskId: taskId,
+      isRunning: false,
+      remainingSeconds: 0,
+    });
   },
 
   startSession(goalId, taskId) {

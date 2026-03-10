@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Goal } from '../types/goal.js';
 import { useGoalsStore } from '../store/goalsStore.js';
 import { TaskItem } from './TaskItem.js';
+import { ReasonsInput } from './ReasonsInput.jsx';
 import { useNavigate } from 'react-router-dom';
 import { useTimerStore } from '../store/timerStore.js';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,6 +23,8 @@ export function GoalCard({ goal }: GoalCardProps) {
   const removeGoal = useGoalsStore((s) => s.removeGoal);
   const addTask = useGoalsStore((s) => s.addTask);
   const canAddTask = useGoalsStore((s) => s.canAddTask);
+  const addGoalReason = useGoalsStore((s) => s.addGoalReason);
+  const removeGoalReason = useGoalsStore((s) => s.removeGoalReason);
   const startSession = useTimerStore((s) => s.startSession);
 
   const completedTasks = goal.tasks.filter((t) => t.completed).length;
@@ -86,6 +89,13 @@ export function GoalCard({ goal }: GoalCardProps) {
           {goal.description && (
             <p className="mt-1 text-sm text-[var(--muted)]">{goal.description}</p>
           )}
+          <ReasonsInput
+            label="Why this goal?"
+            reasons={goal.reasons ?? []}
+            onAdd={(r) => addGoalReason(goal.id, r)}
+            onRemove={(i) => removeGoalReason(goal.id, i)}
+            placeholder="e.g. So I can ship the feature by Friday"
+          />
         </div>
         <button
           type="button"

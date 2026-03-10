@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useSettingsStore } from '../store/settingsStore.js';
 import { getTodayKey } from '../utils/dateUtils.js';
 
-const NOTIFICATION_TITLE = 'ADHD Daily Planner';
+const NOTIFICATION_TITLE = 'Focusara';
 const NOTIFICATION_BODY = 'Time to plan your day?';
 const MORNING_START = 7;
 const MORNING_END = 10;

@@ -28,3 +28,14 @@ export function getPlanningStreak(
   }
   return streak;
 }
+
+/** Consecutive days (including today) with focus time > 0 */
+export function getFocusStreak(todayKey: string, statsByDate: StatsByDate): number {
+  let streak = 0;
+  let current = todayKey;
+  while (statsByDate[current]?.focusMinutes > 0) {
+    streak += 1;
+    current = getPreviousDayKey(current);
+  }
+  return streak;
+}

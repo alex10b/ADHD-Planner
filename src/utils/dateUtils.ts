@@ -32,6 +32,13 @@ export function isToday(dateKey: string): boolean {
   return dateKey === getTodayKey();
 }
 
+/** Yesterday's date key (today minus 1 day) */
+export function getYesterdayKey(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return formatDateKey(d);
+}
+
 /** Previous day's key (YYYY-MM-DD) */
 export function getPreviousDayKey(dateKey: string): string {
   const d = parseDateKey(dateKey);

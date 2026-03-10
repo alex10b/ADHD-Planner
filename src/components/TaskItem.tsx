@@ -1,7 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Task } from '../types/task.js';
 import { useGoalsStore } from '../store/goalsStore.js';
+import { useTimerStore } from '../store/timerStore.js';
+import { ReasonsInput } from './ReasonsInput.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const PRESETS = [25, 35, 'custom'] as const;
 
 interface TaskItemProps {
   goalId: string;
@@ -21,9 +26,36 @@ export function TaskItem({
   onStartFocus,
 }: TaskItemProps) {
   const [showDelete, setShowDelete] = useState(false);
+  const [showFocusPicker, setShowFocusPicker] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const toggleTask = useGoalsStore((s) => s.toggleTask);
   const deleteTask = useGoalsStore((s) => s.deleteTask);
   const reorderTasks = useGoalsStore((s) => s.reorderTasks);
+  const addTaskReason = useGoalsStore((s) => s.addTaskReason);
+  const removeTaskReason = useGoalsStore((s) => s.removeTaskReason);
+  const preset = useTimerStore((s) => s.preset);
+  const customMinutes = useTimerStore((s) => s.customMinutes);
+  const setPreset = useTimerStore((s) => s.setPreset);
+  const setCustomMinutes = useTimerStore((s) => s.setCustomMinutes);
+  const prepareSession = useTimerStore((s) => s.prepareSession);
+
+  useEffect(() => {
+    if (!showFocusPicker) return;
+    const close = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setShowFocusPicker(false);
+      }
+    };
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [showFocusPicker]);
+
+  const handleStartSession = () => {
+    prepareSession(goalId, task.id);
+    setShowFocusPicker(false);
+    navigate('/focus');
+  };
 
   return (
     <motion.li
@@ -53,13 +85,25 @@ export function TaskItem({
           </svg>
         )}
       </button>
-      <span
-        className={`min-w-0 flex-1 text-[var(--text)] ${
-          task.completed ? 'text-[var(--muted)] line-through' : ''
-        }`}
-      >
-        {task.title}
-      </span>
+      <div className="min-w-0 flex-1">
+        <span
+          className={`text-[var(--text)] ${
+            task.completed ? 'text-[var(--muted)] line-through' : ''
+          }`}
+        >
+          {task.title}
+        </span>
+        {!isFocusMode && (
+          <ReasonsInput
+            label=""
+            reasons={task.reasons ?? []}
+            onAdd={(r) => addTaskReason(goalId, task.id, r)}
+            onRemove={(i) => removeTaskReason(goalId, task.id, i)}
+            placeholder="Why this task?"
+            compact
+          />
+        )}
+      </div>
       {!isFocusMode && (
         <div className="flex items-center gap-1 opacity-0 transition group-hover:opacity-100">
           {total > 1 && (
@@ -85,13 +129,67 @@ export function TaskItem({
             </span>
           )}
           {onStartFocus && !task.completed && (
-            <button
-              type="button"
-              onClick={onStartFocus}
-              className="rounded-lg px-2 py-1 text-sm text-[var(--primary)] hover:bg-[var(--hover)]"
-            >
-              Focus
-            </button>
+            <div className="relative" ref={pickerRef}>
+              <button
+                type="button"
+                onClick={() => setShowFocusPicker((v) => !v)}
+                className="rounded-lg px-2 py-1 text-sm text-[var(--primary)] hover:bg-[var(--hover)]"
+              >
+                Focus
+              </button>
+              <AnimatePresence>
+                {showFocusPicker && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    className="absolute right-0 top-full z-50 mt-1.5 w-52 rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 shadow-lg"
+                  >
+                    <p className="mb-2 text-xs font-medium text-[var(--muted)]">
+                      Start session
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {PRESETS.map((value) => (
+                        <button
+                          key={String(value)}
+                          type="button"
+                          onClick={() => setPreset(value)}
+                          className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                            preset === value
+                              ? 'bg-[var(--primary)] text-white'
+                              : 'bg-[var(--hover)] text-[var(--text)]'
+                          }`}
+                        >
+                          {value === 'custom' ? 'Custom' : `${value}m`}
+                        </button>
+                      ))}
+                    </div>
+                    {preset === 'custom' && (
+                      <div className="mt-2 flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          min={1}
+                          max={120}
+                          value={customMinutes}
+                          onChange={(e) =>
+                            setCustomMinutes(Number(e.target.value) || 25)
+                          }
+                          className="w-14 rounded border border-[var(--border)] bg-[var(--bg)] px-2 py-1 text-xs text-[var(--text)]"
+                        />
+                        <span className="text-xs text-[var(--muted)]">min</span>
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleStartSession}
+                      className="mt-3 w-full rounded-lg bg-[var(--primary)] py-2 text-xs font-medium text-white"
+                    >
+                      Start session
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           )}
           <button
             type="button"

@@ -1,7 +1,7 @@
 {
-  "name": "ADHD Daily Planner",
-  "short_name": "ADHD Planner",
-  "description": "A focused daily planner designed for ADHD workflows.",
+  "name": "Focusara",
+  "short_name": "Focusara",
+  "description": "A focused daily planner for staying on track.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -9,7 +9,7 @@
   "theme_color": "#0f172a",
   "icons": [
     {
-      "src": "vite.svg",
+      "src": "/focusara-logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

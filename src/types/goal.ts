@@ -10,4 +10,6 @@ export interface Goal {
   tasks: Task[];
   completed: boolean;
   createdAt: string;
+  /** Why do you need to finish this goal? (unlimited) */
+  reasons?: string[];
 }
