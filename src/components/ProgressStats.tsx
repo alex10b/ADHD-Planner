@@ -1,9 +1,14 @@
 import { useStatsStore } from '../store/statsStore.js';
+import { useGoalsStore } from '../store/goalsStore.js';
 import { getTodayKey } from '../utils/dateUtils.js';
 
 export function ProgressStats() {
   const today = getTodayKey();
   const statsByDate = useStatsStore((s) => s.statsByDate);
+  const goalsByDate = useGoalsStore((s) => s.goalsByDate);
+  const goals = goalsByDate[today] ?? [];
+  const totalTasks = goals.reduce((acc, g) => acc + g.tasks.length, 0);
+
   const stats =
     statsByDate[today] ??
     {
@@ -14,27 +19,27 @@ export function ProgressStats() {
       completedTasks: 0,
     };
 
+  let summary: React.ReactNode;
+  if (stats.focusMinutes > 0 || goals.length > 0) {
+    summary = (
+      <>
+        {stats.focusMinutes > 0 && <>{stats.focusMinutes} min focus</>}
+        {stats.focusMinutes > 0 && goals.length > 0 && ' · '}
+        {goals.length > 0 && (
+          <>
+            {stats.completedGoals}/{goals.length} goals
+            {totalTasks > 0 && <> · {stats.completedTasks}/{totalTasks} tasks</>}
+          </>
+        )}
+      </>
+    );
+  } else {
+    summary = <span className="italic">No activity yet today</span>;
+  }
+
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4">
-        <p className="text-sm text-[var(--muted)]">Focus today</p>
-        <p className="mt-1 text-2xl font-semibold text-[var(--text)]">
-          {stats.focusMinutes}
-          <span className="ml-1 text-lg font-normal text-[var(--muted)]">min</span>
-        </p>
-      </div>
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4">
-        <p className="text-sm text-[var(--muted)]">Goals done</p>
-        <p className="mt-1 text-2xl font-semibold text-[var(--success)]">
-          {stats.completedGoals}
-        </p>
-      </div>
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 sm:col-span-2 sm:col-span-1">
-        <p className="text-sm text-[var(--muted)]">Tasks done</p>
-        <p className="mt-1 text-2xl font-semibold text-[var(--text)]">
-          {stats.completedTasks}
-        </p>
-      </div>
+    <div className="flex flex-wrap items-center rounded-xl bg-[var(--hover)]/60 px-3 py-2.5 text-sm text-[var(--muted)]">
+      {summary}
     </div>
   );
 }

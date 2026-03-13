@@ -10,12 +10,15 @@ export interface PlannerSettings {
   notificationsEnabled: boolean;
   /** Last date we showed the "plan your day" notification (YYYY-MM-DD) */
   lastNotificationDateKey: string | null;
+  /** Milestones at which we've shown the tip popup (e.g. [2, 5, 10]) */
+  tipPopupMilestonesShown: number[];
 }
 
 const DEFAULT_SETTINGS: PlannerSettings = {
   soundOnFocusComplete: true,
   notificationsEnabled: false,
   lastNotificationDateKey: null,
+  tipPopupMilestonesShown: [],
 };
 
 interface SettingsState extends PlannerSettings {
@@ -23,6 +26,7 @@ interface SettingsState extends PlannerSettings {
   setSoundOnFocusComplete: (on: boolean) => void;
   setNotificationsEnabled: (on: boolean) => void;
   setLastNotificationDateKey: (dateKey: string | null) => void;
+  markTipPopupShown: (milestone: number) => void;
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -48,6 +52,13 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     set({ lastNotificationDateKey: dateKey });
     persistSettings(get());
   },
+
+  markTipPopupShown(milestone) {
+    const { tipPopupMilestonesShown } = get();
+    if (tipPopupMilestonesShown.includes(milestone)) return;
+    set({ tipPopupMilestonesShown: [...tipPopupMilestonesShown, milestone] });
+    persistSettings(get());
+  },
 }));
 
 function persistSettings(s: SettingsState): void {
@@ -55,6 +66,7 @@ function persistSettings(s: SettingsState): void {
     soundOnFocusComplete: s.soundOnFocusComplete,
     notificationsEnabled: s.notificationsEnabled,
     lastNotificationDateKey: s.lastNotificationDateKey,
+    tipPopupMilestonesShown: s.tipPopupMilestonesShown,
   };
   saveToStorage(storageKeys.settings, toSave);
 }

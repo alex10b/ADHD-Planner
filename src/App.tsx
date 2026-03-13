@@ -7,7 +7,7 @@ import { useSettingsStore } from './store/settingsStore.js';
 import { useMorningNotification } from './hooks/useMorningNotification.js';
 import { Dashboard } from './pages/Dashboard.jsx';
 import { FocusMode } from './pages/FocusMode.jsx';
-import { History } from './pages/History.jsx';
+import { Logo } from './components/Logo.jsx';
 
 function ThemeToggle() {
   const theme = useThemeStore((s) => s.theme);
@@ -45,7 +45,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border)] bg-[var(--bg)]/95 px-4 py-3 backdrop-blur">
-        <h1 className="text-lg font-semibold text-[var(--text)]">
+        <h1 className="flex items-center gap-2 text-lg font-semibold text-[var(--text)]">
+          <Logo size={24} className="shrink-0" />
           Focusara
         </h1>
         <ThemeToggle />
@@ -85,14 +86,6 @@ export default function App() {
           element={
             <AppLayout>
               <Dashboard />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/history"
-          element={
-            <AppLayout>
-              <History />
             </AppLayout>
           }
         />

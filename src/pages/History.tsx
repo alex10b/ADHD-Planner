@@ -68,7 +68,12 @@ function PastGoal({ goal }: { goal: Goal }) {
   );
 }
 
-export function History() {
+interface HistoryProps {
+  /** When true, hide the back link (used when embedded in Dashboard tab) */
+  embedded?: boolean;
+}
+
+export function History({ embedded = false }: HistoryProps = {}) {
   const statsByDate = useStatsStore((s) => s.statsByDate);
   const hydrateStats = useStatsStore((s) => s.hydrate);
   const getStatsForDate = useStatsStore((s) => s.getStatsForDate);
@@ -101,18 +106,20 @@ export function History() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <header className="mb-8">
-        <Link
-          to="/"
-          className="text-sm text-[var(--primary)] hover:underline"
-        >
-          ← Back to today
-        </Link>
-        <h1 className="mt-4 text-2xl font-semibold text-[var(--text)]">
+    <div className="mx-auto max-w-2xl px-4 py-4">
+      <header className="mb-6">
+        {!embedded && (
+          <Link
+            to="/"
+            className="text-sm text-[var(--primary)] hover:underline"
+          >
+            ← Back to today
+          </Link>
+        )}
+        <h1 className={embedded ? 'text-xl font-semibold text-[var(--text)]' : 'mt-4 text-2xl font-semibold text-[var(--text)]'}>
           History
         </h1>
-        <p className="mt-1 text-[var(--muted)]">
+        <p className="mt-1 text-sm text-[var(--muted)]">
           Past days, goals, and tasks. Tap a day to see details.
         </p>
       </header>

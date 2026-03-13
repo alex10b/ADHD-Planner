@@ -16,6 +16,8 @@ interface TimerState {
   /** Set focus task without starting the timer (so user can pick duration first) */
   prepareSession: (goalId: string, taskId: string) => void;
   startSession: (goalId: string, taskId: string) => void;
+  /** Decrement remaining time by N seconds (handles finishing). */
+  elapse: (seconds: number) => void;
   tick: () => void;
   pause: () => void;
   resume: () => void;
@@ -66,6 +68,23 @@ export const useTimerStore = create<TimerState>((set, get) => ({
       focusGoalId: goalId,
       focusTaskId: taskId,
     });
+  },
+
+  elapse(seconds) {
+    const delta = Math.floor(seconds);
+    if (!Number.isFinite(delta) || delta <= 0) return;
+    const state = get();
+    if (!state.isRunning || state.isPaused) return;
+    const next = state.remainingSeconds - delta;
+    if (next <= 0) {
+      set({
+        isRunning: false,
+        isPaused: false,
+        remainingSeconds: 0,
+      });
+      return;
+    }
+    set({ remainingSeconds: next });
   },
 
   tick() {

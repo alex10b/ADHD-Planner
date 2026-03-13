@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useGoalsStore } from '../store/goalsStore.js';
 import { useStatsStore } from '../store/statsStore.js';
 import { useTimerStore } from '../store/timerStore.js';
@@ -12,13 +12,16 @@ import { StreakBadge } from '../components/StreakBadge.jsx';
 import { EmptyState } from '../components/EmptyState.jsx';
 import { DailyReview } from '../components/DailyReview.jsx';
 import { Settings } from '../components/Settings.jsx';
+import { TipSupport } from '../components/TipSupport.jsx';
+import { TipPopup } from '../components/TipPopup.jsx';
+import { History } from './History.jsx';
 import { getTodayKey, getYesterdayKey } from '../utils/dateUtils.js';
 import { getTimeBasedGreeting, getEncouragement } from '../utils/copy.js';
 import { FocusStreakBadge } from '../components/FocusStreakBadge.jsx';
 import { Logo } from '../components/Logo.jsx';
 import { AnimatePresence } from 'framer-motion';
 
-type Tab = 'focus' | 'goals' | 'more';
+type Tab = 'focus' | 'goals' | 'history' | 'more';
 
 const EMPTY_GOALS: Goal[] = [];
 
@@ -88,11 +91,13 @@ export function Dashboard() {
   const tabs: { id: Tab; label: string }[] = [
     { id: 'goals', label: 'Goals' },
     { id: 'focus', label: 'Focus' },
+    { id: 'history', label: 'History' },
     { id: 'more', label: 'More' },
   ];
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-4">
+      <TipPopup />
       {/* Minimal header + tabs */}
       <header className="mb-4">
         <div className="flex items-center justify-between gap-2">
@@ -173,12 +178,12 @@ export function Dashboard() {
             </button>
           </div>
           <ProgressStats />
-          <Link
-            to="/history"
-            className="block rounded-xl border border-[var(--border)] py-3 text-center text-sm font-medium text-[var(--text)] hover:bg-[var(--hover)]"
-          >
-            History
-          </Link>
+        </div>
+      )}
+
+      {tab === 'history' && (
+        <div className="space-y-4">
+          <History embedded />
         </div>
       )}
 
@@ -224,6 +229,7 @@ export function Dashboard() {
         <div className="space-y-4">
           <DailyReview />
           <Settings />
+          <TipSupport />
         </div>
       )}
     </div>
