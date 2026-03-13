@@ -12,13 +12,24 @@ import { StreakBadge } from '../components/StreakBadge.jsx';
 import { EmptyState } from '../components/EmptyState.jsx';
 import { DailyReview } from '../components/DailyReview.jsx';
 import { Settings } from '../components/Settings.jsx';
+import { ExportData } from '../components/ExportData.jsx';
 import { TipSupport } from '../components/TipSupport.jsx';
+import { WeeklySummary } from '../components/WeeklySummary.jsx';
+import { StreakFreezeCard } from '../components/StreakFreezeCard.jsx';
+import { FocusSessionHistory } from '../components/FocusSessionHistory.jsx';
+import { InstallPrompt } from '../components/InstallPrompt.jsx';
 import { TipPopup } from '../components/TipPopup.jsx';
 import { History } from './History.jsx';
 import { getTodayKey, getYesterdayKey } from '../utils/dateUtils.js';
 import { getTimeBasedGreeting, getEncouragement } from '../utils/copy.js';
 import { FocusStreakBadge } from '../components/FocusStreakBadge.jsx';
 import { Logo } from '../components/Logo.jsx';
+import { LevelBadge } from '../components/LevelBadge.jsx';
+import { AchievementsBadge } from '../components/AchievementsBadge.jsx';
+import { QuickAddGoal } from '../components/QuickAddGoal.jsx';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts.js';
+import { useAchievements } from '../hooks/useAchievements.js';
+import { useTaskXP } from '../hooks/useTaskXP.js';
 import { AnimatePresence } from 'framer-motion';
 
 type Tab = 'focus' | 'goals' | 'history' | 'more';
@@ -69,6 +80,9 @@ export function Dashboard() {
     0
   );
 
+  useAchievements();
+  useTaskXP(completedTasks);
+
   const handleStartFocus = () => {
     for (const goal of goals) {
       const task = goal.tasks.find((t) => !t.completed);
@@ -88,6 +102,13 @@ export function Dashboard() {
   const canCopyYesterday =
     yesterdayGoals.length > 0 && goals.length < 5;
 
+  useKeyboardShortcuts(
+    {
+      onStartFocus: tab === 'focus' && hasIncompleteTask ? handleStartFocus : undefined,
+    },
+    true
+  );
+
   const tabs: { id: Tab; label: string }[] = [
     { id: 'goals', label: 'Goals' },
     { id: 'focus', label: 'Focus' },
@@ -104,8 +125,11 @@ export function Dashboard() {
           <div className="flex items-center gap-2">
             <Logo size={28} className="shrink-0" />
             <p className="text-sm text-[var(--muted)]">{getTimeBasedGreeting()}</p>
+            <QuickAddGoal />
           </div>
           <div className="flex items-center gap-2">
+            <LevelBadge />
+            <AchievementsBadge />
             <StreakBadge />
             <FocusStreakBadge />
             {totalTasks > 0 && (
@@ -227,8 +251,13 @@ export function Dashboard() {
 
       {tab === 'more' && (
         <div className="space-y-4">
+          <WeeklySummary />
+          <StreakFreezeCard />
+          <FocusSessionHistory />
           <DailyReview />
           <Settings />
+          <ExportData />
+          <InstallPrompt />
           <TipSupport />
         </div>
       )}

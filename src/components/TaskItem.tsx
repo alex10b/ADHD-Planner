@@ -27,13 +27,16 @@ export function TaskItem({
 }: TaskItemProps) {
   const [showDelete, setShowDelete] = useState(false);
   const [showFocusPicker, setShowFocusPicker] = useState(false);
+  const [showEstimate, setShowEstimate] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
+  const estimateRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const toggleTask = useGoalsStore((s) => s.toggleTask);
   const deleteTask = useGoalsStore((s) => s.deleteTask);
   const reorderTasks = useGoalsStore((s) => s.reorderTasks);
   const addTaskReason = useGoalsStore((s) => s.addTaskReason);
   const removeTaskReason = useGoalsStore((s) => s.removeTaskReason);
+  const setTaskEstimate = useGoalsStore((s) => s.setTaskEstimate);
   const preset = useTimerStore((s) => s.preset);
   const customMinutes = useTimerStore((s) => s.customMinutes);
   const setPreset = useTimerStore((s) => s.setPreset);
@@ -41,15 +44,14 @@ export function TaskItem({
   const prepareSession = useTimerStore((s) => s.prepareSession);
 
   useEffect(() => {
-    if (!showFocusPicker) return;
     const close = (e: MouseEvent) => {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
-        setShowFocusPicker(false);
-      }
+      const target = e.target as Node;
+      if (pickerRef.current && !pickerRef.current.contains(target)) setShowFocusPicker(false);
+      if (estimateRef.current && !estimateRef.current.contains(target)) setShowEstimate(false);
     };
     document.addEventListener('click', close);
     return () => document.removeEventListener('click', close);
-  }, [showFocusPicker]);
+  }, [showFocusPicker, showEstimate]);
 
   const handleStartSession = () => {
     prepareSession(goalId, task.id);
@@ -92,6 +94,9 @@ export function TaskItem({
           }`}
         >
           {task.title}
+          {task.estimateMinutes != null && (
+            <span className="ml-1.5 text-xs text-[var(--muted)]">~{task.estimateMinutes} min</span>
+          )}
         </span>
         {!isFocusMode && (
           <ReasonsInput
@@ -106,6 +111,45 @@ export function TaskItem({
       </div>
       {!isFocusMode && (
         <div className="flex items-center gap-1 opacity-0 transition group-hover:opacity-100">
+          {!task.completed && (
+            <div className="relative" ref={estimateRef}>
+              <button
+                type="button"
+                onClick={() => setShowEstimate((v) => !v)}
+                className="rounded p-0.5 text-[var(--muted)] hover:bg-[var(--hover)]"
+                title="Set time estimate"
+                aria-label="Set time estimate"
+              >
+                ⏱
+              </button>
+              {showEstimate && (
+                <div className="absolute right-0 top-full z-50 mt-1 flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--card)] p-2 shadow-lg">
+                  <input
+                    type="number"
+                    min={1}
+                    max={480}
+                    placeholder="min"
+                    value={task.estimateMinutes ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value ? Number(e.target.value) : undefined;
+                      setTaskEstimate(goalId, task.id, v);
+                    }}
+                    className="w-14 rounded border border-[var(--border)] bg-[var(--bg)] px-2 py-1 text-xs text-[var(--text)]"
+                  />
+                  <span className="text-xs text-[var(--muted)]">min</span>
+                  {task.estimateMinutes != null && (
+                    <button
+                      type="button"
+                      onClick={() => setTaskEstimate(goalId, task.id, undefined)}
+                      className="text-xs text-[var(--muted)] hover:text-[var(--danger)]"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           {total > 1 && (
             <span className="flex">
               <button

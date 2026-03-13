@@ -4,6 +4,7 @@ import { MotionConfig } from 'framer-motion';
 import { useGoalsStore } from './store/goalsStore.js';
 import { useThemeStore } from './store/themeStore.js';
 import { useSettingsStore } from './store/settingsStore.js';
+import { useGamificationStore } from './store/gamificationStore.js';
 import { useMorningNotification } from './hooks/useMorningNotification.js';
 import { Dashboard } from './pages/Dashboard.jsx';
 import { FocusMode } from './pages/FocusMode.jsx';
@@ -25,8 +26,8 @@ function ThemeToggle() {
       type="button"
       onClick={cycle}
       className="rounded-xl p-2 text-[var(--muted)] hover:bg-[var(--hover)] hover:text-[var(--text)]"
-      aria-label={`Theme: ${resolved}. Click to change.`}
-      title={`Theme: ${resolved}`}
+      aria-label={`Theme: ${theme}. Click to cycle: light, dark, system.`}
+      title={`Theme: ${theme} (${resolved})`}
     >
       {resolved === 'dark' ? (
         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,12 +61,14 @@ export default function App() {
   const hydrateGoals = useGoalsStore((s) => s.hydrate);
   const hydrateTheme = useThemeStore((s) => s.hydrate);
   const hydrateSettings = useSettingsStore((s) => s.hydrate);
+  const hydrateGamification = useGamificationStore((s) => s.hydrate);
 
   useEffect(() => {
     hydrateTheme();
     hydrateGoals();
     hydrateSettings();
-  }, [hydrateTheme, hydrateGoals, hydrateSettings]);
+    hydrateGamification();
+  }, [hydrateTheme, hydrateGoals, hydrateSettings, hydrateGamification]);
 
   useMorningNotification();
 

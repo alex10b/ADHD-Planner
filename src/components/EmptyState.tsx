@@ -1,5 +1,6 @@
 import { useGoalsStore } from '../store/goalsStore.js';
 import { getTodayKey } from '../utils/dateUtils.js';
+import { Mascot } from './Mascot.jsx';
 
 const SUGGESTIONS = [
   { title: 'One important thing', description: 'The single thing that would make today a win' },
@@ -16,11 +17,8 @@ export function EmptyState() {
 
   return (
     <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-8 text-center">
-      <div
-        className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--hover)] text-3xl text-[var(--primary)]"
-        aria-hidden
-      >
-        ✦
+      <div className="mx-auto mb-4 flex justify-center" aria-hidden>
+        <Mascot variant="idle" size={80} />
       </div>
       <h2 className="text-lg font-medium text-[var(--text)]">
         Plan your day in small steps

@@ -12,6 +12,14 @@ export interface PlannerSettings {
   lastNotificationDateKey: string | null;
   /** Milestones at which we've shown the tip popup (e.g. [2, 5, 10]) */
   tipPopupMilestonesShown: number[];
+  /** Show break reminder after focus session */
+  breakReminderEnabled: boolean;
+  /** Body doubling: ambient study-with-me audio during focus */
+  bodyDoublingEnabled: boolean;
+  /** Just one task mode: minimal UI during focus */
+  justOneTaskMode: boolean;
+  /** Gentle nudges: "Still on track?" prompts during focus (every 10 min) */
+  gentleNudgesEnabled: boolean;
 }
 
 const DEFAULT_SETTINGS: PlannerSettings = {
@@ -19,6 +27,10 @@ const DEFAULT_SETTINGS: PlannerSettings = {
   notificationsEnabled: false,
   lastNotificationDateKey: null,
   tipPopupMilestonesShown: [],
+  breakReminderEnabled: true,
+  bodyDoublingEnabled: false,
+  justOneTaskMode: false,
+  gentleNudgesEnabled: false,
 };
 
 interface SettingsState extends PlannerSettings {
@@ -27,6 +39,10 @@ interface SettingsState extends PlannerSettings {
   setNotificationsEnabled: (on: boolean) => void;
   setLastNotificationDateKey: (dateKey: string | null) => void;
   markTipPopupShown: (milestone: number) => void;
+  setBreakReminderEnabled: (on: boolean) => void;
+  setBodyDoublingEnabled: (on: boolean) => void;
+  setJustOneTaskMode: (on: boolean) => void;
+  setGentleNudgesEnabled: (on: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -59,6 +75,26 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     set({ tipPopupMilestonesShown: [...tipPopupMilestonesShown, milestone] });
     persistSettings(get());
   },
+
+  setBreakReminderEnabled(on) {
+    set({ breakReminderEnabled: on });
+    persistSettings(get());
+  },
+
+  setBodyDoublingEnabled(on) {
+    set({ bodyDoublingEnabled: on });
+    persistSettings(get());
+  },
+
+  setJustOneTaskMode(on) {
+    set({ justOneTaskMode: on });
+    persistSettings(get());
+  },
+
+  setGentleNudgesEnabled(on) {
+    set({ gentleNudgesEnabled: on });
+    persistSettings(get());
+  },
 }));
 
 function persistSettings(s: SettingsState): void {
@@ -67,6 +103,10 @@ function persistSettings(s: SettingsState): void {
     notificationsEnabled: s.notificationsEnabled,
     lastNotificationDateKey: s.lastNotificationDateKey,
     tipPopupMilestonesShown: s.tipPopupMilestonesShown,
+    breakReminderEnabled: s.breakReminderEnabled,
+    bodyDoublingEnabled: s.bodyDoublingEnabled,
+    justOneTaskMode: s.justOneTaskMode,
+    gentleNudgesEnabled: s.gentleNudgesEnabled,
   };
   saveToStorage(storageKeys.settings, toSave);
 }

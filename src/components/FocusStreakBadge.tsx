@@ -1,11 +1,13 @@
 import { useStatsStore } from '../store/statsStore.js';
+import { useGamificationStore } from '../store/gamificationStore.js';
 import { getTodayKey } from '../utils/dateUtils.js';
 import { getFocusStreak } from '../utils/streakUtils.js';
 
 export function FocusStreakBadge() {
   const statsByDate = useStatsStore((s) => s.statsByDate);
+  const freezeUsedForDates = useGamificationStore((s) => s.freezeUsedForDates);
   const today = getTodayKey();
-  const streak = getFocusStreak(today, statsByDate);
+  const streak = getFocusStreak(today, statsByDate, freezeUsedForDates);
 
   if (streak === 0) return null;
 

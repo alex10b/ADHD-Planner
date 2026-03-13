@@ -1,13 +1,15 @@
 import { useGoalsStore } from '../store/goalsStore.js';
 import { useStatsStore } from '../store/statsStore.js';
+import { useGamificationStore } from '../store/gamificationStore.js';
 import { getTodayKey } from '../utils/dateUtils.js';
 import { getPlanningStreak } from '../utils/streakUtils.js';
 
 export function StreakBadge() {
   const goalsByDate = useGoalsStore((s) => s.goalsByDate);
   const statsByDate = useStatsStore((s) => s.statsByDate);
+  const freezeUsedForDates = useGamificationStore((s) => s.freezeUsedForDates);
   const today = getTodayKey();
-  const streak = getPlanningStreak(today, goalsByDate, statsByDate);
+  const streak = getPlanningStreak(today, goalsByDate, statsByDate, freezeUsedForDates);
 
   if (streak === 0) return null;
 

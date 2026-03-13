@@ -11,6 +11,14 @@ export function Settings() {
   const setSoundOnFocusComplete = useSettingsStore((s) => s.setSoundOnFocusComplete);
   const notificationsEnabled = useSettingsStore((s) => s.notificationsEnabled);
   const setNotificationsEnabled = useSettingsStore((s) => s.setNotificationsEnabled);
+  const breakReminderEnabled = useSettingsStore((s) => s.breakReminderEnabled);
+  const setBreakReminderEnabled = useSettingsStore((s) => s.setBreakReminderEnabled);
+  const bodyDoublingEnabled = useSettingsStore((s) => s.bodyDoublingEnabled);
+  const setBodyDoublingEnabled = useSettingsStore((s) => s.setBodyDoublingEnabled);
+  const justOneTaskMode = useSettingsStore((s) => s.justOneTaskMode);
+  const setJustOneTaskMode = useSettingsStore((s) => s.setJustOneTaskMode);
+  const gentleNudgesEnabled = useSettingsStore((s) => s.gentleNudgesEnabled);
+  const setGentleNudgesEnabled = useSettingsStore((s) => s.setGentleNudgesEnabled);
 
   const handleNotificationsToggle = (on: boolean) => {
     if (on && typeof window !== 'undefined' && 'Notification' in window) {
@@ -62,6 +70,50 @@ export function Settings() {
               />
             </label>
           )}
+          <label className="flex cursor-pointer items-center justify-between gap-3">
+            <span className="text-sm text-[var(--text)]">
+              Break reminder after focus session
+            </span>
+            <input
+              type="checkbox"
+              checked={breakReminderEnabled}
+              onChange={(e) => setBreakReminderEnabled(e.target.checked)}
+              className="h-5 w-5 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)]"
+            />
+          </label>
+          <label className="flex cursor-pointer items-center justify-between gap-3">
+            <span className="text-sm text-[var(--text)]">
+              Body doubling (ambient sound during focus)
+            </span>
+            <input
+              type="checkbox"
+              checked={bodyDoublingEnabled}
+              onChange={(e) => setBodyDoublingEnabled(e.target.checked)}
+              className="h-5 w-5 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)]"
+            />
+          </label>
+          <label className="flex cursor-pointer items-center justify-between gap-3">
+            <span className="text-sm text-[var(--text)]">
+              Just one task mode (minimal focus UI)
+            </span>
+            <input
+              type="checkbox"
+              checked={justOneTaskMode}
+              onChange={(e) => setJustOneTaskMode(e.target.checked)}
+              className="h-5 w-5 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)]"
+            />
+          </label>
+          <label className="flex cursor-pointer items-center justify-between gap-3">
+            <span className="text-sm text-[var(--text)]">
+              Gentle nudges (“Still on track?” during focus)
+            </span>
+            <input
+              type="checkbox"
+              checked={gentleNudgesEnabled}
+              onChange={(e) => setGentleNudgesEnabled(e.target.checked)}
+              className="h-5 w-5 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)]"
+            />
+          </label>
         </div>
       )}
     </div>

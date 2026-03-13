@@ -23,7 +23,7 @@ export function ReasonScreensaver({ reasons, fallback = "You've got this." }: Re
 
   return (
     <div
-      className="pointer-events-none absolute left-0 right-0 top-0 z-[1] flex h-[42vh] min-h-[180px] flex-col items-center justify-center px-6"
+      className="pointer-events-none absolute left-0 right-0 top-0 z-[1] flex h-[min(42vh,200px)] min-h-[140px] flex-col items-center justify-center px-6 md:h-[min(28vh,160px)] md:min-h-[120px]"
       aria-hidden
     >
       <AnimatePresence mode="wait">

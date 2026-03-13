@@ -1,4 +1,5 @@
 import { useTimerStore, type TimerPreset } from '../store/timerStore.js';
+import { hapticLight } from '../utils/haptic.js';
 
 const PRESETS: { value: TimerPreset; label: string }[] = [
   { value: 25, label: '25 min' },
@@ -30,7 +31,10 @@ export function FocusTimer() {
   const showPresets = sessionPrepared;
 
   const handleStartTimer = () => {
-    if (focusGoalId && focusTaskId) startSession(focusGoalId, focusTaskId);
+    if (focusGoalId && focusTaskId) {
+      hapticLight();
+      startSession(focusGoalId, focusTaskId);
+    }
   };
 
   return (

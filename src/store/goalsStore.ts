@@ -29,6 +29,7 @@ interface GoalsState {
     updates: Partial<Pick<Goal, 'title' | 'description' | 'priority'>>
   ) => void;
   addTask: (goalId: string, title: string) => void;
+  setTaskEstimate: (goalId: string, taskId: string, minutes: number | undefined) => void;
   toggleTask: (goalId: string, taskId: string) => void;
   deleteTask: (goalId: string, taskId: string) => void;
   reorderTasks: (goalId: string, fromIndex: number, toIndex: number) => void;
@@ -168,6 +169,27 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
         ...state.goalsByDate,
         [today]: updated,
       },
+      _version: state._version + 1,
+    });
+    get().persist();
+  },
+
+  setTaskEstimate(goalId, taskId, minutes) {
+    const state = get();
+    const today = getTodayKey();
+    const list = state.goalsByDate[today] ?? [];
+    const updated = list.map((g) =>
+      g.id === goalId
+        ? {
+            ...g,
+            tasks: g.tasks.map((t) =>
+              t.id === taskId ? { ...t, estimateMinutes: minutes } : t
+            ),
+          }
+        : g
+    );
+    set({
+      goalsByDate: { ...state.goalsByDate, [today]: updated },
       _version: state._version + 1,
     });
     get().persist();
